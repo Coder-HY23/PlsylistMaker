@@ -1,0 +1,9 @@
+{
+  "name": "playlistmaker-backend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  }
+}
