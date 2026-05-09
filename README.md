@@ -1,6 +1,7 @@
 # PlaylistMaker
 
-AIでプレイリスト候補を作り、Spotify/Apple Musicへ保存するiOS向けMVPです。
+AIでプレイリスト候補を作り、Spotify/Apple Musicへ保存するiOS向けMVPです。  
+現在のアプリ実装は Spotify を一時停止し、Apple Music のみを対象にしています。
 
 ## Repository Structure
 - `backend/`: Vercel Serverless API (OpenAI + Spotify)

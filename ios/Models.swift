@@ -10,6 +10,10 @@ enum FlowStep {
 enum Provider: String, CaseIterable {
     case spotify = "Spotify"
     case appleMusic = "Apple Music"
+
+    static var enabledProviders: [Provider] {
+        [.appleMusic]
+    }
 }
 
 struct Track: Identifiable, Hashable {
@@ -30,7 +34,7 @@ final class AppState: ObservableObject {
     @Published var prompt: String = ""
     @Published var count: Int = 20
     @Published var tracks: [Track] = []
-    @Published var provider: Provider = .spotify
+    @Published var provider: Provider = .appleMusic
     @Published var isLoading: Bool = false
     @Published var result: CreateResult? = nil
     @Published var spotifyAccessToken: String? = nil
@@ -43,7 +47,7 @@ final class AppState: ObservableObject {
         prompt = ""
         count = 20
         tracks = []
-        provider = .spotify
+        provider = .appleMusic
         isLoading = false
         result = nil
         spotifyAccessToken = nil

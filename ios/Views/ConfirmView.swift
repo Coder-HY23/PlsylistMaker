@@ -2,8 +2,6 @@ import SwiftUI
 
 struct ConfirmView: View {
     @EnvironmentObject private var state: AppState
-    @State private var showSpotifyAuth = false
-    @State private var spotifyAuthURL: URL? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -12,30 +10,19 @@ struct ConfirmView: View {
                 .bold()
 
             Picker("Provider", selection: $state.provider) {
-                ForEach(Provider.allCases, id: \.self) { provider in
+                ForEach(Provider.enabledProviders, id: \.self) { provider in
                     Text(provider.rawValue).tag(provider)
                 }
             }
             .pickerStyle(.segmented)
+            .disabled(true)
 
-            if state.provider == .spotify {
-                if let token = state.spotifyAccessToken, !token.isEmpty {
-                    Text("Spotify connected")
-                        .foregroundColor(.green)
-                } else {
-                    Button("Connect Spotify") {
-                        Task { await startSpotifyAuth() }
-                    }
-                    .buttonStyle(.bordered)
+            Text("Spotify is temporarily disabled for this build.")
+                .font(.footnote)
+                .foregroundColor(.orange)
 
-                    if let error = state.spotifyAuthError {
-                        Text(error).foregroundColor(.red)
-                    }
-                }
-            } else {
-                Text("Apple Music will be created on-device via MusicKit.")
-                    .foregroundColor(.secondary)
-            }
+            Text("Apple Music will be created on-device via MusicKit.")
+                .foregroundColor(.secondary)
 
             Button {
                 Task { await createPlaylist() }
@@ -46,19 +33,16 @@ struct ConfirmView: View {
                 }
             }
             .buttonStyle(.borderedProminent)
-            .disabled(state.isLoading || state.tracks.isEmpty || (state.provider == .spotify && state.spotifyAccessToken == nil))
+            .disabled(state.isLoading || state.tracks.isEmpty)
 
             Spacer()
         }
         .padding()
         .navigationTitle("Confirm")
-        .sheet(isPresented: $showSpotifyAuth) {
-            if let url = spotifyAuthURL {
-                SafariView(url: url)
+        .onAppear {
+            if !Provider.enabledProviders.contains(state.provider) {
+                state.provider = .appleMusic
             }
-        }
-        .onChange(of: state.spotifyAccessToken) {
-            showSpotifyAuth = false
         }
     }
 
@@ -67,38 +51,15 @@ struct ConfirmView: View {
         state.isLoading = true
         defer { state.isLoading = false }
 
-        do {
-            if state.provider == .spotify {
-                guard let token = state.spotifyAccessToken else {
-                    state.result = CreateResult(success: false, message: "Spotify not connected", url: nil)
-                    state.step = .done
-                    return
-                }
-                let result = try await state.api.createSpotifyPlaylist(
-                    accessToken: token,
-                    name: "PlaylistMaker",
-                    tracks: state.tracks
-                )
-                state.result = result
-            } else {
-                state.result = CreateResult(success: true, message: "Apple Music flow not wired yet", url: nil)
-            }
-            state.step = .done
-        } catch {
-            state.result = CreateResult(success: false, message: "Failed to create", url: nil)
-            state.step = .done
+        if state.provider == .spotify {
+            state.result = CreateResult(
+                success: false,
+                message: "Spotify is temporarily disabled for this build.",
+                url: nil
+            )
+        } else {
+            state.result = CreateResult(success: true, message: "Apple Music flow not wired yet", url: nil)
         }
-    }
-
-    @MainActor
-    private func startSpotifyAuth() async {
-        state.spotifyAuthError = nil
-        do {
-            let url = try await state.api.spotifyAuthorizeURL()
-            spotifyAuthURL = url
-            showSpotifyAuth = true
-        } catch {
-            state.spotifyAuthError = "Failed to start Spotify auth"
-        }
+        state.step = .done
     }
 }
