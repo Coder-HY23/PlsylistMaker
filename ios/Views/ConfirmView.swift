@@ -57,7 +57,7 @@ struct ConfirmView: View {
                 SafariView(url: url)
             }
         }
-        .onChange(of: state.spotifyAccessToken) { _ in
+        .onChange(of: state.spotifyAccessToken) {
             showSpotifyAuth = false
         }
     }
