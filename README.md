@@ -63,6 +63,13 @@ curl -i -X POST http://127.0.0.1:3100/api/spotify/authorize-url -H 'content-type
    - `PlaylistMaker-iOS/PlaylistMaker/PlaylistMaker.xcodeproj`
 2. 新規プロジェクトを作成し、`ios/` 配下のSwiftファイルを追加する
 
+## Apple Music Playlist Creation
+- 現在のアプリは Apple Music でのプレイリスト作成を実装済みです（Spotifyは一時停止中）。
+- 初回作成時に Apple Music 権限ダイアログが表示されます。
+- 実行には以下が必要です。
+  - Apple Musicサブスクリプションが有効
+  - 端末で「ライブラリを同期（Sync Library）」が有効
+
 ## Troubleshooting
 - `No existing credentials found` が出る  
   - `vercel login` を再実行
@@ -70,6 +77,12 @@ curl -i -X POST http://127.0.0.1:3100/api/spotify/authorize-url -H 'content-type
   - `backend/.env.local` のSpotify関連キーを確認
 - `OPENAI_API_KEY is not set` が出る  
   - `backend/.env.local` のOpenAI関連キーを確認
+- `Apple Music access was denied` が出る  
+  - iOS設定で本アプリの「Media & Apple Music」権限を許可
+- `An active Apple Music subscription is required` が出る  
+  - Apple Musicサブスクリプション状態を確認
+- `Sync Library is disabled in Apple Music settings` が出る  
+  - 設定 > ミュージック > ライブラリを同期 を有効化
 
 ## Security Notes
 - `backend/.env.local` は機密情報を含むためコミットしないでください（`.gitignore` 済み）。

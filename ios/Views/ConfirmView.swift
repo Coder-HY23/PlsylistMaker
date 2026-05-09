@@ -51,14 +51,25 @@ struct ConfirmView: View {
         state.isLoading = true
         defer { state.isLoading = false }
 
-        if state.provider == .spotify {
+        do {
+            if state.provider == .spotify {
+                state.result = CreateResult(
+                    success: false,
+                    message: "Spotify is temporarily disabled for this build.",
+                    url: nil
+                )
+            } else {
+                state.result = try await state.api.createAppleMusicPlaylist(
+                    name: "PlaylistMaker",
+                    tracks: state.tracks
+                )
+            }
+        } catch {
             state.result = CreateResult(
                 success: false,
-                message: "Spotify is temporarily disabled for this build.",
+                message: "Failed to create: \(error.localizedDescription)",
                 url: nil
             )
-        } else {
-            state.result = CreateResult(success: true, message: "Apple Music flow not wired yet", url: nil)
         }
         state.step = .done
     }
