@@ -16,6 +16,12 @@ struct RecommendationsView: View {
         }
         .navigationTitle("Review")
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Back") {
+                    state.step = .input
+                }
+            }
+
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Next") {
                     state.step = .confirm

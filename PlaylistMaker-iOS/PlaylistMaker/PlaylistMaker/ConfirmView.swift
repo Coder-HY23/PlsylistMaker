@@ -39,6 +39,13 @@ struct ConfirmView: View {
         }
         .padding()
         .navigationTitle("Confirm")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button("Back") {
+                    state.step = .results
+                }
+            }
+        }
         .onAppear {
             if !Provider.enabledProviders.contains(state.provider) {
                 state.provider = .appleMusic
@@ -60,7 +67,7 @@ struct ConfirmView: View {
                 )
             } else {
                 state.result = try await state.api.createAppleMusicPlaylist(
-                    name: "PlaylistMaker",
+                    name: state.resolvedPlaylistName,
                     tracks: state.tracks
                 )
             }

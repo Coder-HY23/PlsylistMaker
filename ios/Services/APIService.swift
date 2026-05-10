@@ -4,15 +4,19 @@ import MusicKit
 final class APIService {
     private let baseURL = URL(string: "https://your-vercel-app.vercel.app")!
 
-    func recommend(prompt: String, count: Int) async throws -> [Track] {
+    func recommend(prompt: String, count: Int, maxTracksPerArtist: Int? = nil) async throws -> [Track] {
         let url = baseURL.appendingPathComponent("/api/recommend")
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: [
+        var payload: [String: Any] = [
             "prompt": prompt,
             "count": count
-        ])
+        ]
+        if let maxTracksPerArtist {
+            payload["maxTracksPerArtist"] = maxTracksPerArtist
+        }
+        request.httpBody = try JSONSerialization.data(withJSONObject: payload)
 
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
@@ -111,7 +115,7 @@ final class APIService {
             throw AppleMusicError.authorizationDenied
         }
 
-        let subscription = MusicSubscription.current
+        let subscription = try await MusicSubscription.current
         guard subscription.canPlayCatalogContent else {
             throw AppleMusicError.subscriptionRequired
         }

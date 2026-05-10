@@ -73,6 +73,10 @@ module.exports = async (req, res) => {
   const body = getJsonBody(req);
   const prompt = body?.prompt;
   const count = Math.max(1, Math.min(100, Number(body?.count || 20)));
+  const parsedArtistLimit = Number(body?.maxTracksPerArtist);
+  const maxTracksPerArtist = Number.isFinite(parsedArtistLimit)
+    ? Math.max(1, Math.min(20, Math.floor(parsedArtistLimit)))
+    : null;
 
   if (!prompt || typeof prompt !== "string") {
     res.status(400).json({ error: "prompt is required" });
@@ -84,7 +88,10 @@ module.exports = async (req, res) => {
   const userText =
     `User request: ${prompt}\n` +
     `Return JSON: {"tracks":[{"title":"...","artist":"..."}]}\n` +
-    `Provide at least ${count} tracks.`;
+    `Provide at least ${count} tracks.` +
+    (maxTracksPerArtist
+      ? `\nDo not include more than ${maxTracksPerArtist} tracks per same artist.`
+      : "");
 
   try {
     const response = await fetch("https://api.openai.com/v1/responses", {
@@ -121,11 +128,30 @@ module.exports = async (req, res) => {
     }
 
     const tracks = Array.isArray(parsed?.tracks) ? parsed.tracks : [];
-    const normalized = tracks
-      .filter((t) => t && typeof t.title === "string" && typeof t.artist === "string")
-      .map((t) => ({ title: t.title.trim(), artist: t.artist.trim() }))
-      .filter((t) => t.title && t.artist)
-      .slice(0, count);
+
+    const artistCounts = new Map();
+    const normalized = [];
+
+    for (const t of tracks) {
+      if (!t || typeof t.title !== "string" || typeof t.artist !== "string") continue;
+
+      const title = t.title.trim();
+      const artist = t.artist.trim();
+      if (!title || !artist) continue;
+
+      if (maxTracksPerArtist) {
+        const artistKey = artist
+          .toLowerCase()
+          .replace(/\s+/g, " ")
+          .trim();
+        const currentCount = artistCounts.get(artistKey) || 0;
+        if (currentCount >= maxTracksPerArtist) continue;
+        artistCounts.set(artistKey, currentCount + 1);
+      }
+
+      normalized.push({ title, artist });
+      if (normalized.length >= count) break;
+    }
 
     res.status(200).json({ tracks: normalized });
   } catch (err) {

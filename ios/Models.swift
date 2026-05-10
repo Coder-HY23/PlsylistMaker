@@ -31,8 +31,11 @@ struct CreateResult {
 @MainActor
 final class AppState: ObservableObject {
     @Published var step: FlowStep = .input
+    @Published var playlistName: String = "PlaylistMaker"
     @Published var prompt: String = ""
     @Published var count: Int = 20
+    @Published var limitTracksPerArtist: Bool = false
+    @Published var maxTracksPerArtist: Int = 2
     @Published var tracks: [Track] = []
     @Published var provider: Provider = .appleMusic
     @Published var isLoading: Bool = false
@@ -44,8 +47,11 @@ final class AppState: ObservableObject {
 
     func reset() {
         step = .input
+        playlistName = "PlaylistMaker"
         prompt = ""
         count = 20
+        limitTracksPerArtist = false
+        maxTracksPerArtist = 2
         tracks = []
         provider = .appleMusic
         isLoading = false
@@ -67,6 +73,15 @@ final class AppState: ObservableObject {
         } catch {
             spotifyAuthError = "Spotify auth failed"
         }
+    }
+
+    var resolvedPlaylistName: String {
+        let trimmed = playlistName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? "PlaylistMaker" : trimmed
+    }
+
+    var maxTracksPerArtistLimit: Int? {
+        limitTracksPerArtist ? max(1, maxTracksPerArtist) : nil
     }
 }
 

@@ -12,12 +12,30 @@ struct InputView: View {
             Text("Describe the playlist you want")
                 .font(.headline)
 
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Playlist name")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+
+                TextField("PlaylistMaker", text: $state.playlistName)
+                    .textFieldStyle(.roundedBorder)
+                    .autocorrectionDisabled()
+            }
+
             TextEditor(text: $state.prompt)
                 .frame(minHeight: 120)
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.3)))
 
             Stepper(value: $state.count, in: 5...50, step: 5) {
                 Text("Tracks: \(state.count)")
+            }
+
+            Toggle("Limit tracks per same artist", isOn: $state.limitTracksPerArtist)
+
+            if state.limitTracksPerArtist {
+                Stepper(value: $state.maxTracksPerArtist, in: 1...10) {
+                    Text("Max per artist: \(state.maxTracksPerArtist)")
+                }
             }
 
             Button {
@@ -44,7 +62,11 @@ struct InputView: View {
         defer { state.isLoading = false }
 
         do {
-            let tracks = try await state.api.recommend(prompt: state.prompt, count: state.count)
+            let tracks = try await state.api.recommend(
+                prompt: state.prompt,
+                count: state.count,
+                maxTracksPerArtist: state.maxTracksPerArtistLimit
+            )
             state.tracks = tracks
             state.step = .results
         } catch {
