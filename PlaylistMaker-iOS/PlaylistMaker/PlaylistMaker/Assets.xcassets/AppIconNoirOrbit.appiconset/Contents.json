@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "violet-pulse-light.png",
+      "filename" : "noir-orbit-light.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "violet-pulse-dark.png",
+      "filename" : "noir-orbit-dark.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,7 +25,7 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "violet-pulse-tinted.png",
+      "filename" : "noir-orbit-tinted.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

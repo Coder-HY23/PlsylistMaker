@@ -32,6 +32,7 @@ struct CreateResult {
 
 final class PlaylistAppState: Combine.ObservableObject {
     @Published var step: FlowStep = .input
+    @Published var interfaceTheme: InterfaceTheme = .midnight
     @Published var playlistName: String = "PlaylistMaker"
     @Published var prompt: String = ""
     @Published var count: Int = 20

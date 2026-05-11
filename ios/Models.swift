@@ -31,6 +31,7 @@ struct CreateResult {
 @MainActor
 final class AppState: ObservableObject {
     @Published var step: FlowStep = .input
+    @Published var interfaceTheme: InterfaceTheme = .midnight
     @Published var playlistName: String = "PlaylistMaker"
     @Published var prompt: String = ""
     @Published var count: Int = 20
@@ -58,6 +59,12 @@ final class AppState: ObservableObject {
         result = nil
         spotifyAccessToken = nil
         spotifyAuthError = nil
+    }
+
+    func backToInput() {
+        step = .input
+        isLoading = false
+        result = nil
     }
 
     func handleSpotifyCallback(_ url: URL) async {
